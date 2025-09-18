@@ -24,25 +24,46 @@ class CourseForm
                     ->searchable()
                     ->options(function () {
                         return Student::query()
-                            
+
                             ->orderBy('name')
                             ->limit(10)
                             ->pluck('name', 'token')
                             ->toArray();
                     })
                     ->preload(),
+                // FileUpload::make('thumbnail')
+                //     ->required()
+                //     ->disk('public')
+                //     ->directory('course-thumbnails')
+                //     ->visibility('public')
+                //     ->hiddenOn('edit')
+
+                // // Hide the upload field on edit pages
+                // ,
+
+
                 FileUpload::make('thumbnail')
-                    ->required()
                     ->disk('public')
                     ->directory('course-thumbnails')
-                    ->visibility('public'),
+                    ->visibility('public')
+                    ->required(fn(string $context): bool => $context === 'create')
+                    ->afterStateHydrated(function (FileUpload $component, $state) {
+                        // Clear the state to prevent loading existing files
+                        $component->state(null);
+                    })
+                    ->dehydrated(true),
                 FileUpload::make('video')
-                    ->required()
+                    ->required(fn(string $context): bool => $context === 'create')
                     ->disk('public')
-                    ->maxSize(1024 * 50) // 50MB explicitly
+                    ->maxSize(1024 * 1024) // 50MB explicitly
                     ->acceptedFileTypes(['video/mp4', 'video/avi', 'video/mov', 'video/mkv'])
                     ->directory('course-videos')
-                    ->visibility('public'),
+                    ->visibility('public')
+                    ->afterStateHydrated(function (FileUpload $component, $state) {
+                        // Clear the state to prevent loading existing files
+                        $component->state(null);
+                    })
+                    ->dehydrated(true),
                 Textarea::make('description')
                     ->columnSpanFull(),
                 Select::make('type_id')
