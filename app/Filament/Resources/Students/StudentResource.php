@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Students;
 
+use App\Filament\Clusters\Settings\SettingsCluster;
 use App\Filament\Resources\Students\Pages\CreateStudent;
 use App\Filament\Resources\Students\Pages\EditStudent;
 use App\Filament\Resources\Students\Pages\ListStudents;
@@ -15,6 +16,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
+
 
 class StudentResource extends Resource
 {
@@ -24,6 +27,19 @@ class StudentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Students';
 
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $navigationBadgeTooltip = 'The number of students';
+    // protected static string | UnitEnum | null $navigationGroup = 'Student Management';
+    // protected static ?string $cluster = SettingsCluster::class;
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::count() > 9 ? 'success' : 'primary';
+    }
     public static function form(Schema $schema): Schema
     {
         return StudentForm::configure($schema);
